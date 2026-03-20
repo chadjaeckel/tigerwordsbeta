@@ -35,10 +35,20 @@ const Speech = (() => {
       speechSynthesis.cancel();
     }
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 1.7;
-    utter.pitch = 0.9;
-    utter.volume = 1;
+   
+const utter = new SpeechSynthesisUtterance(text);
+
+// Normalize speed across devices
+// Chrome Android is too fast unless we slow it down
+if (/Android/i.test(navigator.userAgent)) {
+  utter.rate = 0.7;   // ideal mobile speed
+} else {
+  utter.rate = 1.0;   // ideal desktop speed
+}
+
+utter.pitch = 1.0;
+utter.volume = 1.0;
+
 
     utter.onstart = () => {
       isSpeaking = true;
