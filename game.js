@@ -401,12 +401,12 @@ pause.pitch = 1;
 pause.onend = () => {
   // 3 — After the pause finishes, read shortcuts
   Speech.speak("Keyboard shortcuts:");
-  Speech.speak("Press R for game rules and instructions.");
-  Speech.speak("Press 1 to start a new game.");
-  Speech.speak("Press 2 to read the letters.");
-  Speech.speak("Press 3 to end the game now.");
-  Speech.speak("Press Space to hold and talk.");
-  Speech.speak("Press Enter to submit a typed word.");
+  Speech.speak("Press the letter R on the keyboard for game rules and instructions.");
+  Speech.speak("Press the number 1 to start a new game.");
+  Speech.speak("Press the number 2 to read the letters.");
+  Speech.speak("Press the number 3 to end the game now.");
+  Speech.speak("Press Spacear and hold and talk.");
+  Speech.speak("Press Enter key to submit a typed word.");
   Speech.speak("Press Tab then press H to open the help menu.");
 };
 
