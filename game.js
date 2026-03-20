@@ -401,7 +401,7 @@ pause.pitch = 1;
 pause.onend = () => {
   // 3 — After the pause finishes, read shortcuts
   Speech.speak("Keyboard shortcuts:");
-  Speech.speak("Press the letter R on the keyboard for game rules and instructions.");
+  Speech.speak("Press Tab then press the letter R as in Rules on the keyboard for game rules and instructions.");
   Speech.speak("Press the number 1 to start a new game.");
   Speech.speak("Press the number 2 to read the letters.");
   Speech.speak("Press the number 3 to end the game now.");
