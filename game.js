@@ -5,6 +5,36 @@
 // Global game state
 let gameState = null;
 
+const leaderboardKey = "awgLeaderboard";
+let leaderboard = [];
+
+function loadLeaderboard() {
+  try {
+    const saved = localStorage.getItem(leaderboardKey);
+    leaderboard = saved ? JSON.parse(saved) : [];
+  } catch {
+    leaderboard = [];
+  }
+}
+
+function saveLeaderboard() {
+  localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard));
+}
+
+function updateLeaderboardUI() {
+  const list = document.getElementById("leaderboard-list");
+  list.innerHTML = "";
+
+  leaderboard
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20) // top 20
+    .forEach(entry => {
+      const li = document.createElement("li");
+      li.textContent = `${entry.name}: ${entry.score} pts — ${entry.time}s`;
+      list.appendChild(li);
+    });
+}
+
 // ===============================
 // Persistent Stats
 // ===============================
@@ -72,8 +102,12 @@ function calculatePoints(word) {
 // ===============================
 // Wait for dictionary
 // ===============================
+
 document.addEventListener("DOMContentLoaded", async () => {
   loadStats();
+  loadLeaderboard();
+  updateLeaderboardUI();
+
 
   const startBtn = document.getElementById("start-btn");
   startBtn.disabled = true;
@@ -212,6 +246,9 @@ function updateFoundWords() {
 
   const ul = document.createElement("ul");
 
+  updateProgressBar();
+``
+
   Array.from(gameState.foundWords).sort().forEach(word => {
     const li = document.createElement("li");
     li.textContent = word;
@@ -303,6 +340,7 @@ function handleGuess(word) {
   updateUI();
   updateFoundWords();
   updateRemainingCounter();
+  updateProgressBar();
   checkForGameEnd();
 }
 
@@ -348,9 +386,37 @@ document.getElementById("start-btn").addEventListener("click", () => {
   updateRemainingCounter();
   setStatus("Game started.", true);
 
-  const typedInput = document.getElementById("typed-word");
-  typedInput.focus();
-  typedInput.select();
+ // 🔊 Spoken intro + keyboard shortcuts
+Speech.clearQueue();
+
+// 1 — Speak welcome message FIRST
+Speech.speak("Welcome to Game Tiger.");
+
+// 2 — Create a silent 1‑second pause
+const pause = new SpeechSynthesisUtterance(" ");
+pause.volume = 0;    // silent
+pause.rate = 1;
+pause.pitch = 1;
+
+pause.onend = () => {
+  // 3 — After the pause finishes, read shortcuts
+  Speech.speak("Keyboard shortcuts:");
+  Speech.speak("Press R for game rules and instructions.");
+  Speech.speak("Press 1 to start a new game.");
+  Speech.speak("Press 2 to read the letters.");
+  Speech.speak("Press 3 to end the game now.");
+  Speech.speak("Press Space to hold and talk.");
+  Speech.speak("Press Enter to submit a typed word.");
+  Speech.speak("Press Tab then press H to open the help menu.");
+};
+
+// Trigger the pause after the welcome message is spoken
+speechSynthesis.speak(pause);
+
+// Give focus to the input box
+const typedInput = document.getElementById("typed-word");
+typedInput.focus();
+typedInput.select();
 });
 
 // ===============================
@@ -406,17 +472,37 @@ document.addEventListener("keydown", e => {
     return;
   }
 
-  if (e.key === "4") {
-    const typedInput = document.getElementById("typed-word");
+  // 4 = Focus word entry box
+if (e.key === "4") {
+  e.preventDefault();
+
+  // If a modal is open, close help modal
+  const help = document.getElementById("help-modal");
+  if (!help.hidden) help.hidden = true;
+
+  // Same for summary modal
+  const summary = document.getElementById("summary-modal");
+  if (!summary.hidden) summary.hidden = true;
+
+  // Now focus input
+  const typedInput = document.getElementById("typed-word");
+  if (typedInput) {
     typedInput.focus();
     typedInput.select();
-    return;
   }
+
+  return;
+}
 
   if (e.key.toLowerCase() === "h") {
     openHelpModal();
     return;
-  }
+  }// R = Read rules and instructions
+if (e.key.toLowerCase() === "r") {
+  e.preventDefault();
+  readRulesAndInstructions();
+  return;
+}
 });
 
 document.addEventListener("keyup", e => {
@@ -438,6 +524,38 @@ function readGridAloud() {
   Speech.speak(`Center letter is ${center}.`);
 }
 
+function readRulesAndInstructions() {
+  Speech.clearQueue();
+
+  // Game Goal
+  Speech.speak("Game rules and instructions.");
+  Speech.speak("Your goal is to find as many valid words as possible.");
+  Speech.speak("Every word must include the center letter.");
+
+  // How to Play
+  Speech.speak("Here is how to play.");
+  Speech.speak("Use the letters on the board to form words.");
+  Speech.speak("Every word must be at least four letters long.");
+  Speech.speak("You cannot reuse the same word twice.");
+  Speech.speak("All words must be valid dictionary words.");
+
+  // Scoring
+  Speech.speak("Scoring.");
+  Speech.speak("Longer words earn more points.");
+  Speech.speak("Very long words earn bonus points.");
+
+  // Controls
+  Speech.speak("Controls.");
+  Speech.speak("Type a word and press Enter.");
+  Speech.speak("Press Space and hold to speak a word using your voice.");
+  Speech.speak("Press two to hear the letters again.");
+  Speech.speak("Press three to end the game at any time.");
+  Speech.speak("Press four to move the cursor to the typing box.");
+
+  // Ending the game
+  Speech.speak("The game ends when you find all valid words.");
+  Speech.speak("Or when you choose End Game Now.");
+}
 //===============================
 // Hint
 //===============================
@@ -577,6 +695,30 @@ function openSummaryModal() {
   }
 
   content.innerHTML = html;
+
+// Add score to leaderboard
+leaderboard.push({
+  name: p1.name,
+  score: p1.score,
+  time: durationSeconds,
+  date: Date.now()
+});
+
+if (gameState.mode === "two") {
+  leaderboard.push({
+    name: p2.name,
+    score: p2.score,
+    time: durationSeconds,
+    date: Date.now()
+  });
+}
+
+saveLeaderboard();
+updateLeaderboardUI();
+
+
+// ------------------------------------------------
+
   modal.hidden = false;
 
   if (typeof launchConfetti === "function") {
@@ -604,6 +746,22 @@ document.getElementById("summary-close-btn").addEventListener("click", () => {
   document.getElementById("summary-modal").hidden = true;
 });
 
+function updateProgressBar() {
+  if (!gameState || !gameState.puzzle) return;
+
+  const total = gameState.puzzle.validWords.length;
+  const found = gameState.foundWords.size;
+
+  const percent = Math.floor((found / total) * 100);
+
+  // Update bar width
+  const bar = document.getElementById("progress-bar");
+  bar.style.width = percent + "%";
+
+  // Update label
+  const label = document.getElementById("progress-label");
+  label.textContent = `${percent}% Complete`;
+}
 // ===============================
 // CONFETTI EFFECT
 // ===============================
@@ -672,6 +830,7 @@ function openHelpModal() {
   Speech.speak("Press space and hold to talk.");
   Speech.speak("Press enter to submit a typed word.");
   Speech.speak("Press h to open this help screen.");
+  Speech.speak("Press The letter R for game rules and instructions.");
 }
 
 function closeHelpModal() {

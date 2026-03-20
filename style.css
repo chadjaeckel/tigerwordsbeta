@@ -1,177 +1,276 @@
+/* ===============================
+   GLOBAL THEME
+   =============================== */
 body {
+  background: #121212;
+  color: #e6e6e6;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #111;
-  color: #f5f5f5;
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #ffffff;
 }
 
 main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 1rem;
+  max-width: 1200px;
+  margin: auto;
 }
 
-header {
-  margin-bottom: 1rem;
+/* ===============================
+   BUTTONS — Modern Style
+   =============================== */
+button {
+  background: #1e1e1e;
+  color: #ffffff;
+  border: 2px solid #333;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-
-#shortcuts {
-  margin-top: 20px;
-  padding: 10px;
-  background: #222;
-  border: 1px solid #555;
-  border-radius: 8px;
+button:hover {
+  background: #333;
+  border-color: #555;
 }
 
-#shortcuts h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
+button:active {
+  transform: scale(0.97);
 }
 
-#shortcuts ul {
-  margin: 0;
-  padding-left: 1.25rem;
+/* Primary buttons */
+#start-btn {
+  background: #2e7d32;
+  border-color: #5eed6a;
+}
+#start-btn:hover {
+  background: #5eed6a;
+  color: #000;
 }
 
-#shortcuts li {
-  margin-bottom: 0.4rem;
+/* Danger buttons */
+#endgame-btn {
+  background: #c62828;
+  border-color: #ff5252;
+}
+#endgame-btn:hover {
+  background: #ff5252;
 }
 
-#game {
-  display: flex;
-  gap: 1rem;
+/* ===============================
+   TEXT INPUTS
+   =============================== */
+input[type="text"] {
+  background: #1e1e1e;
+  border: 2px solid #333;
+  color: #ffffff;
+  padding: 6px;
+  border-radius: 6px;
 }
 
-#left-panel,
-#right-panel {
-  flex: 1;
+input[type="text"]:focus {
+  border-color: #40c4ff;
+  outline: none;
 }
 
-#grid {
+/* ===============================
+   GRID — Modern Look
+   =============================== */
+.grid {
   display: grid;
   grid-template-columns: repeat(3, 80px);
-  grid-template-rows: repeat(3, 80px);
-  gap: 8px;
-  margin-bottom: 1rem;
+  gap: 10px;
+  margin: 20px 0;
 }
 
+/* ===============================
+   PROGRESS BAR
+   =============================== */
 
-#shortcuts,
-#voice-commands {
-  margin-top: 20px;
-  padding: 10px;
-  background: #222;
-  border: 1px solid #555;
+#progress-container {
+  width: 100%;
+  max-width: 400px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 4px;
+  margin: 15px 0;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+#progress-bar {
+  height: 18px;
+  width: 0%;
+  background: linear-gradient(90deg, #40c4ff, #69f0ae);
   border-radius: 8px;
+  transition: width 0.4s ease;
 }
 
-#shortcuts h2,
-#voice-commands h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-#shortcuts ul,
-#voice-commands ul {
-  margin: 0;
-  padding-left: 1.25rem;
-}
-
-#shortcuts li,
-#voice-commands li {
-  margin-bottom: 0.4rem;
-}
-
-#voice-commands p {
-  margin-top: 0.75rem;
-  color: #ffeb3b;
+#progress-label {
+  text-align: center;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #ffd740;
+  font-weight: 600;
 }
 
 .cell {
+  background: #d32f2f;
+  border-radius: 10px;
+  font-size: 32px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: red;
-  color: #fff;
-  font-size: 2rem;
-  border-radius: 6px;
-}
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
 
-.cell.center {
-  border: 3px solid #ffeb3b;
-}
-
-#controls button {
-  margin-right: 0.5rem;
-}
-
-#scores p {
-  margin: 0.25rem 0;
-}
-
-#found-words-container {
-  margin-top: 1rem;
+  #leaderboard {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  width: 250px;
   max-height: 300px;
   overflow-y: auto;
+  margin-top: 20px;
 }
 
-#found-words {
-  list-style: none;
-  padding-left: 1rem;
-}
-
-#status {
-  margin-top: 0.5rem;
-  min-height: 2rem;
-  font-size: 0.95rem;
-  color: #ffeb3b;
-}
-#endgame-btn {
-  background: #b00020;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  margin-left: 0.5rem;
-}
-#endgame-btn:hover {
-  background: #ff4444;
-}
-#help-close-btn {
-  background: #444;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  margin-top: 1rem;
-}
-#help-close-btn:hover {
-  background: #666;
-}
-#confetti
-
-#scoreboard {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.score-box {
-  flex: 1;
-  padding: 10px;
-  background: #222;
-  border: 2px solid #555;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.score-box h3 {
+#leaderboard ul {
   margin: 0;
-  font-size: 1.2rem;
-  color: #ffeb3b;
+  padding-left: 20px;
 }
 
-.score-value {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-top: 5px;
+#leaderboard li {
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #ffd740;
+}
+/* ===============================
+   MOBILE RESPONSIVE UI
+   =============================== */
+
+/* Phones & small screens (0px – 600px) */
+@media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  main {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  /* Grid shrinks & centers */
+  .grid {
+    grid-template-columns: repeat(3, 70px);
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .cell {
+    font-size: 26px;
+    height: 70px;
+  }
+
+  /* Scoreboard stacks vertically */
+  #scoreboard {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .score-box {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Controls wrap into rows */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  button {
+    width: 46%;
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  /* Found Words moves below grid */
+  #found-words {
+    width: 100%;
+    max-height: 250px;
+    margin-top: 10px;
+  }
+
+  /* Leaderboard also becomes full width */
+  #leaderboard {
+    width: 100%;
+    max-height: 200px;
+    margin-top: 20px;
+  }
+
+  /* Progress bar adapts to width */
+  #progress-container {
+    max-width: 100%;
+    width: 100%;
+    margin: 15px auto;
+  }
+
+  /* Modal shrinks for mobile */
+  .modal {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .modal h2 {
+    font-size: 1.4rem;
+  }
+
+  /* Input field full width */
+  #typed-word {
+    width: 100%;
+    font-size: 1.1rem;
+  }
+}
+
+/* Larger phones / small tablets (600px – 900px) */
+@media (max-width: 900px) {
+
+  .grid {
+    grid-template-columns: repeat(3, 85px);
+  }
+
+  .cell {
+    font-size: 28px;
+    height: 85px;
+  }
+
+  button {
+    font-size: 14px;
+  }
+
+  #found-words {
+    width: 90%;
+    margin: auto;
+  }
+
+  #leaderboard {
+    width: 90%;
+    margin: 20px auto;
+  }
 }
