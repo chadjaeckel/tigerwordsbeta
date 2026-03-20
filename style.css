@@ -148,3 +148,30 @@ header {
   background: #666;
 }
 #confetti
+
+#scoreboard {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.score-box {
+  flex: 1;
+  padding: 10px;
+  background: #222;
+  border: 2px solid #555;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.score-box h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #ffeb3b;
+}
+
+.score-value {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 5px;
+}
