@@ -5,12 +5,12 @@
 <meta name="theme-color" content="#111111" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Accessible Word Grid</title>
+  <title>Word Tiger</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main>
-    <h1>Accessible Word Grid</h1>
+    <h1>Word Tiger</h1>
 
     <section aria-labelledby="setup-heading">
       <h2 id="setup-heading">Game Setup</h2>
@@ -36,7 +36,7 @@
 
       <!-- RULES BUTTON (placed above grid) -->
 <button id="rules-btn" class="big-rules-button">
-  INSTRUCTIONS & RULES Press 2 times slowly
+  INSTRUCTIONS & RULES
 </button>
 
 <!-- GAME GRID -->
@@ -44,6 +44,9 @@
 
 
       <div class="grid" id="grid" aria-label="Letter grid"></div>
+
+
+      <p>Hold the <strong>Spacebar</strong> to speak.</p>
 
       <div id="scoreboard">
   <div class="score-box" id="p1-score-box">
@@ -53,7 +56,7 @@
 
       <form id="word-form">
         <label for="typed-word">Type a word</label>
-        <input id="typed-word" type="text" placeholder="Type a word and press Enter" autocomplete="off" />
+       <input id="typed-word" type="text" placeholder="Type a word and press Enter">
       </form>
     </section>
     
@@ -116,7 +119,7 @@
     <li><strong>Read found words</strong> = Hear the words already found</li>
     <li><strong>Read remaining words</strong> = Hear a summary of words left</li>
   </ul>
-  <p>Hold the <strong>Spacebar</strong> to speak.</p>
+  
 </div>
 
 
@@ -124,11 +127,6 @@
       <h2 id="stats-heading">Statistics</h2>
     </section>
 
-    <button id="debug-btn">Toggle Debug</button>
-    <section id="debug-panel" hidden aria-labelledby="debug-heading">
-      <h2 id="debug-heading">Debug: All Valid Words</h2>
-      <ul id="debug-words"></ul>
-    </section>
 
     <!-- End‑of‑Game Summary Modal -->
 <div id="summary-modal" hidden class="modal-overlay" role="dialog" aria-labelledby="summary-title">

@@ -349,7 +349,7 @@ document.getElementById("start-btn").addEventListener("click", () => {
     speakWithPause("Press the number 3 to end the game now.");
     speakWithPause("Press Spacebar and hold to talk.");
     speakWithPause("Press Enter to submit a typed word.");
-    speakWithPause("Press Tab then press H to open the help menu.");
+  
   };
 
   speechSynthesis.speak(welcomePause);
@@ -367,9 +367,12 @@ document.getElementById("read-btn").addEventListener("click", readGridAloud);
 document.getElementById("listen-btn").addEventListener("click", startListening);
 document.getElementById("stop-btn").addEventListener("click", stopListening);
 document.getElementById("endgame-btn").addEventListener("click", forceEndGame);
+
 document.getElementById("rules-btn").addEventListener("click", () => {
+  Speech.clearQueue();       // <-- ADD THIS LINE
   readRulesAndInstructions();
 });
+
 
 // ===============================
 // TYPED INPUT HANDLER
@@ -396,6 +399,9 @@ document.addEventListener("keydown", (e) => {
   // =====================================================
   // R ALWAYS OVERRIDES EVERYTHING — FIRST PRIORITY
   // =====================================================
+ 
+  Speech.clearQueue();
+
   if (key === "r") {
     e.preventDefault();
     readRulesAndInstructions();
