@@ -158,8 +158,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 function setStatus(message, speak = false) {
   const status = document.getElementById("status");
   status.textContent = message;
+
   if (speak) Speech.speak(message);
 }
+
 
 function isTypingTarget(target) {
   return (
@@ -179,6 +181,74 @@ function updateRemainingCounter() {
   const box = document.getElementById("remaining-counter");
   if (box) box.textContent = `Remaining words: ${remaining.length}`;
 }
+
+// ===============================
+// Levenshtein Distance
+// ===============================
+function levenshtein(a, b) {
+  const dp = Array(a.length + 1).fill(null).map(() =>
+    Array(b.length + 1).fill(null)
+  );
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+// ===============================
+// Simple metaphone
+// ===============================
+function metaphone(word) {
+  word = word.toLowerCase().replace(/[^a-z]/g, "");
+  if (!word) return "";
+  const vowels = "aeiou";
+  let result = "";
+  for (let i = 0; i < word.length; i++) {
+    const c = word[i];
+    if (vowels.includes(c)) {
+      if (i === 0) result += c;
+      continue;
+    }
+    if ("bcdgptvqxz".includes(c)) result += c;
+  }
+  return result;
+}
+
+// ===============================
+// Smart Guess
+// ===============================
+function smartGuess(word, validWords) {
+  if (validWords.includes(word)) return word;
+
+  const targetMeta = metaphone(word);
+  const phoneticMatches = validWords.filter(
+    w => metaphone(w) === targetMeta
+  );
+  if (phoneticMatches.length > 0) return phoneticMatches[0];
+
+  let best = null;
+  let bestDist = Infinity;
+  validWords.forEach(w => {
+    const d = levenshtein(word, w);
+    if (d < bestDist) {
+      bestDist = d;
+      best = w;
+    }
+  });
+
+  return bestDist <= 2 ? best : null;
+}
+
 //------------Part 2--------
 
 // ===============================
@@ -244,6 +314,7 @@ function handleGuess(word) {
 
   const valid = gameState.puzzle.validWords;
 
+  // If not valid word
   if (!valid.includes(word)) {
     const maybe = smartGuess(word, valid);
     if (maybe) {
@@ -254,34 +325,40 @@ function handleGuess(word) {
     return;
   }
 
+  // If already found
   if (gameState.foundWords.has(word)) {
     setStatus(`${word} was already found.`, true);
     return;
   }
 
+  // Score word
   const points = calculatePoints(word);
   const player = gameState.players[gameState.currentPlayerIndex];
   player.score += points;
 
+  // Update stats
   stats.totalWordsFound += 1;
   stats.totalPoints += points;
   saveStats();
   updateStatsUI();
 
+  // Add word to found list
   gameState.foundWords.add(word);
 
-if (points >= 15) {
-  setStatus(`Amazing! ${word} earned ${points} points!`, true);
-} else {
-  setStatus(`${word} is valid for ${points} points.`, true);
-}
-``
+  // 🔊 SPEAK CORRECT-WORD FEEDBACK
+  if (points >= 15) {
+    setStatus(`Amazing! ${word} earned ${points} points!`, true);
+  } else {
+    setStatus(`${word} is valid for ${points} points.`, true);
+  }
 
+  // Switch players in two-player mode
   if (gameState.mode === "two") {
     gameState.currentPlayerIndex =
       gameState.currentPlayerIndex === 0 ? 1 : 0;
   }
 
+  // Update UI
   updateUI();
   updateFoundWords();
   updateRemainingCounter();
@@ -401,7 +478,6 @@ document.addEventListener("keydown", (e) => {
   // R ALWAYS OVERRIDES EVERYTHING — FIRST PRIORITY
   // =====================================================
  
-  Speech.clearQueue();
 
  // R = Read Rules (unless typing inside the word box)
 if (key === "r") {
