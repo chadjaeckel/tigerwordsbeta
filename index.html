@@ -33,6 +33,16 @@
     <section id="game" hidden aria-labelledby="game-heading">
       <h2 id="game-heading">Game</h2>
 
+
+      <!-- RULES BUTTON (placed above grid) -->
+<button id="rules-btn" class="big-rules-button">
+  INSTRUCTIONS & RULES Press 2 times slowly
+</button>
+
+<!-- GAME GRID -->
+<div id="grid" class="grid"></div>
+
+
       <div class="grid" id="grid" aria-label="Letter grid"></div>
 
       <div id="scoreboard">
@@ -41,6 +51,12 @@
     <div class="score-value" id="p1-score">0</div>
   </div>
 
+      <form id="word-form">
+        <label for="typed-word">Type a word</label>
+        <input id="typed-word" type="text" placeholder="Type a word and press Enter" autocomplete="off" />
+      </form>
+    </section>
+    
   <div id="progress-container">
   <div id="progress-bar"></div>
   <div id="progress-label">0% Complete</div>
@@ -76,11 +92,7 @@
         <button id="endgame-btn">End Game Now</button>
       </section>
 
-      <form id="word-form">
-        <label for="typed-word">Type a word</label>
-        <input id="typed-word" type="text" placeholder="Type a word and press Enter" autocomplete="off" />
-      </form>
-    </section>
+  
 
 <div id="shortcuts" aria-label="Keyboard shortcuts">
   <h2>Keyboard Shortcuts</h2>

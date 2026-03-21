@@ -2,12 +2,61 @@
 // Accessible Word Grid — CLEAN FINAL game.js
 // ===============================
 
-// Global game state
+// =============================================
+// GLOBAL STATE
+// =============================================
 let gameState = null;
 
+// Leaderboard storage
 const leaderboardKey = "awgLeaderboard";
 let leaderboard = [];
 
+// Stats storage
+const statsKey = "wordGridStats";
+let stats = {
+  gamesPlayed: 0,
+  totalWordsFound: 0,
+  totalPoints: 0
+};
+
+// =============================================
+// SPEECH UTILITY: speakWithPause
+// =============================================
+
+// ===============================
+// Speech wrappers
+// ===============================
+function startListening() {
+  if (!gameState) {
+    setStatus("Start a game before using voice commands.", true);
+    return;
+  }
+
+  setStatus("Listening...");
+  Speech.pushToTalk(text => {
+    const result = Commands.parse(text);
+    handleCommandResult(result, text);
+  });
+}
+
+function stopListening() {
+  Speech.stopListening();
+  setStatus("Stopped listening.");
+}
+
+function speakWithPause(text) {
+  Speech.speak(text);
+
+  const pause = new SpeechSynthesisUtterance(" ");
+  pause.volume = 0;
+  pause.rate = 0.5;  // half-second pause
+  pause.pitch = 1;
+  speechSynthesis.speak(pause);
+}
+
+// =============================================
+// LEADERBOARD FUNCTIONS
+// =============================================
 function loadLeaderboard() {
   try {
     const saved = localStorage.getItem(leaderboardKey);
@@ -27,7 +76,7 @@ function updateLeaderboardUI() {
 
   leaderboard
     .sort((a, b) => b.score - a.score)
-    .slice(0, 20) // top 20
+    .slice(0, 20)
     .forEach(entry => {
       const li = document.createElement("li");
       li.textContent = `${entry.name}: ${entry.score} pts — ${entry.time}s`;
@@ -35,39 +84,26 @@ function updateLeaderboardUI() {
     });
 }
 
-// ===============================
-// Persistent Stats
-// ===============================
-const statsKey = "wordGridStats";
-let stats = {
-  gamesPlayed: 0,
-  totalWordsFound: 0,
-  totalPoints: 0
-};
-
+// =============================================
+// STATS FUNCTIONS
+// =============================================
 function loadStats() {
   try {
     const saved = localStorage.getItem(statsKey);
     if (saved) {
       const parsed = JSON.parse(saved);
-      stats = {
-        gamesPlayed: Number(parsed.gamesPlayed) || 0,
-        totalWordsFound: Number(parsed.totalWordsFound) || 0,
-        totalPoints: Number(parsed.totalPoints) || 0
-      };
+      stats.gamesPlayed = Number(parsed.gamesPlayed) || 0;
+      stats.totalWordsFound = Number(parsed.totalWordsFound) || 0;
+      stats.totalPoints = Number(parsed.totalPoints) || 0;
     }
-  } catch (error) {
-    console.warn("Unable to load stats", error);
-  }
+  } catch {}
   updateStatsUI();
 }
 
 function saveStats() {
   try {
     localStorage.setItem(statsKey, JSON.stringify(stats));
-  } catch (error) {
-    console.warn("Unable to save stats", error);
-  }
+  } catch {}
 }
 
 function updateStatsUI() {
@@ -83,51 +119,45 @@ Total Points: ${stats.totalPoints}
 `;
 }
 
-// ===============================
+// =============================================
 // POINT SYSTEM
-// ===============================
+// =============================================
 function calculatePoints(word) {
   const len = word.length;
-
   if (len === 4) return 4;
   if (len === 5) return 6;
   if (len === 6) return 8;
   if (len === 7) return 10;
   if (len === 8) return 15;
   if (len >= 9) return 25;
-
   return len;
 }
 
-// ===============================
-// Wait for dictionary
-// ===============================
-
+// =============================================
+// DOMContentLoaded — Load dictionary & stats
+// =============================================
 document.addEventListener("DOMContentLoaded", async () => {
   loadStats();
   loadLeaderboard();
   updateLeaderboardUI();
-
 
   const startBtn = document.getElementById("start-btn");
   startBtn.disabled = true;
   startBtn.textContent = "Loading dictionary...";
 
   await Dictionary.load();
-
   startBtn.disabled = false;
   startBtn.textContent = "Start Game";
 
   console.log("Dictionary ready:", Dictionary.words.size);
 });
 
-// ===============================
-// Helpers
-// ===============================
+// =============================================
+// HELPERS
+// =============================================
 function setStatus(message, speak = false) {
   const status = document.getElementById("status");
   status.textContent = message;
-
   if (speak) Speech.speak(message);
 }
 
@@ -135,125 +165,38 @@ function isTypingTarget(target) {
   return (
     target &&
     (target.tagName === "INPUT" ||
-      target.tagName === "TEXTAREA" ||
-      target.isContentEditable)
+     target.tagName === "TEXTAREA" ||
+     target.isContentEditable)
   );
 }
 
-// Remaining words counter
 function updateRemainingCounter() {
   if (!gameState || !gameState.puzzle) return;
 
   const remaining = gameState.puzzle.validWords.filter(
     w => !gameState.foundWords.has(w)
   );
-
   const box = document.getElementById("remaining-counter");
-  if (box) {
-    box.textContent = `Remaining words: ${remaining.length}`;
-  }
+  if (box) box.textContent = `Remaining words: ${remaining.length}`;
 }
-
-// ===============================
-// Speech wrappers
-// ===============================
-function startListening() {
-  if (!gameState) {
-    setStatus("Start a game before using voice commands.", true);
-    return;
-  }
-  setStatus("Listening...");
-  Speech.pushToTalk(text => {
-    const result = Commands.parse(text);
-    handleCommandResult(result, text);
-  });
-}
-
-function stopListening() {
-  Speech.stopListening();
-  setStatus("Stopped listening.");
-}
-
-// ===============================
-// Levenshtein Distance
-// ===============================
-function levenshtein(a, b) {
-  const dp = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(null));
-  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
-  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
-    }
-  }
-  return dp[a.length][b.length];
-}
-
-// ===============================
-// Simple metaphone
-// ===============================
-function metaphone(word) {
-  word = word.toLowerCase().replace(/[^a-z]/g, "");
-  if (!word) return "";
-  const vowels = "aeiou";
-  let result = "";
-  for (let i = 0; i < word.length; i++) {
-    const c = word[i];
-    if (vowels.includes(c)) {
-      if (i === 0) result += c;
-      continue;
-    }
-    if ("bcdgptvqxz".includes(c)) result += c;
-  }
-  return result;
-}
-
-// ===============================
-// Smart Guess
-// ===============================
-function smartGuess(word, validWords) {
-  if (validWords.includes(word)) return word;
-
-  const targetMeta = metaphone(word);
-  const phoneticMatches = validWords.filter(w => metaphone(w) === targetMeta);
-  if (phoneticMatches.length > 0) return phoneticMatches[0];
-
-  let best = null;
-  let bestDist = Infinity;
-  validWords.forEach(w => {
-    const d = levenshtein(word, w);
-    if (d < bestDist) {
-      bestDist = d;
-      best = w;
-    }
-  });
-
-  return bestDist <= 2 ? best : null;
-}
+//------------Part 2--------
 
 // ===============================
 // Found Words UI
 // ===============================
 function updateFoundWords() {
   const container = document.getElementById("found-words");
-  container.innerHTML = `<h2>Found Words</h2>`;
+  container.innerHTML = "<h2>Found Words</h2>";
 
   const ul = document.createElement("ul");
 
-  updateProgressBar();
-``
-
-  Array.from(gameState.foundWords).sort().forEach(word => {
-    const li = document.createElement("li");
-    li.textContent = word;
-    ul.appendChild(li);
-  });
+  Array.from(gameState.foundWords)
+    .sort()
+    .forEach(word => {
+      const li = document.createElement("li");
+      li.textContent = word;
+      ul.appendChild(li);
+    });
 
   container.appendChild(ul);
 }
@@ -268,9 +211,11 @@ function updateUI() {
   gameState.puzzle.letters.forEach((ch, i) => {
     const cell = document.createElement("div");
     cell.className = "cell";
+
     if (i === gameState.puzzle.centerIndex) {
       cell.classList.add("center");
     }
+
     cell.textContent = ch.toUpperCase();
     grid.appendChild(cell);
   });
@@ -325,7 +270,6 @@ function handleGuess(word) {
 
   gameState.foundWords.add(word);
 
-  // feedback
   if (points >= 15) {
     setStatus(`Amazing! ${word} earned ${points} points!`, true);
   } else {
@@ -376,60 +320,59 @@ document.getElementById("start-btn").addEventListener("click", () => {
 
   document.getElementById("p1-name-label").textContent = p1Name;
   document.getElementById("p2-name-label").textContent = p2Name;
-
   document.getElementById("p2-score-box").hidden = (mode !== "two");
-
   document.getElementById("game").hidden = false;
 
   updateUI();
   updateFoundWords();
   updateRemainingCounter();
+  updateProgressBar();
   setStatus("Game started.", true);
 
- // 🔊 Spoken intro + keyboard shortcuts
-Speech.clearQueue();
+  // ----------------------------------------
+  // SPEECH SEQUENCE AFTER STARTING A NEW GAME
+  // ----------------------------------------
+  Speech.clearQueue();
+  Speech.speak("Welcome to Game Tiger.");
 
-// 1 — Speak welcome message FIRST
-Speech.speak("Welcome to Game Tiger.");
+  // 1-second pause
+  const welcomePause = new SpeechSynthesisUtterance(" ");
+  welcomePause.volume = 0;
+  welcomePause.rate = 0.5;
 
-// 2 — Create a silent 1‑second pause
-const pause = new SpeechSynthesisUtterance(" ");
-pause.volume = 0;    // silent
-pause.rate = 1;
-pause.pitch = 1;
+  welcomePause.onend = () => {
+    speakWithPause("Keyboard shortcuts.");
+    speakWithPause("Press the Tab Key and then the letter R two times for game rules and instructions.");
+    speakWithPause("Or press the letter K to hear the keyboard shortcuts.");
+    speakWithPause("Press the number 1 to start a new game.");
+    speakWithPause("Press the number 2 to read the letters.");
+    speakWithPause("Press the number 3 to end the game now.");
+    speakWithPause("Press Spacebar and hold to talk.");
+    speakWithPause("Press Enter to submit a typed word.");
+    speakWithPause("Press Tab then press H to open the help menu.");
+  };
 
-pause.onend = () => {
-  // 3 — After the pause finishes, read shortcuts
-  Speech.speak("Keyboard shortcuts:");
-  Speech.speak("Press Tab then press the letter R as in Rules on the keyboard for game rules and instructions.");
-  Speech.speak("Press the number 1 to start a new game.");
-  Speech.speak("Press the number 2 to read the letters.");
-  Speech.speak("Press the number 3 to end the game now.");
-  Speech.speak("Press Spacear and hold and talk.");
-  Speech.speak("Press Enter key to submit a typed word.");
-  Speech.speak("Press Tab then press H to open the help menu.");
-};
+  speechSynthesis.speak(welcomePause);
 
-// Trigger the pause after the welcome message is spoken
-speechSynthesis.speak(pause);
-
-// Give focus to the input box
-const typedInput = document.getElementById("typed-word");
-typedInput.focus();
-typedInput.select();
+  const typedInput = document.getElementById("typed-word");
+  typedInput.focus();
+  typedInput.select();
 });
 
 // ===============================
-// Buttons
+// BUTTON HANDLERS
 // ===============================
 document.getElementById("hint-btn").addEventListener("click", giveHint);
 document.getElementById("read-btn").addEventListener("click", readGridAloud);
 document.getElementById("listen-btn").addEventListener("click", startListening);
 document.getElementById("stop-btn").addEventListener("click", stopListening);
 document.getElementById("endgame-btn").addEventListener("click", forceEndGame);
+document.getElementById("rules-btn").addEventListener("click", () => {
+  readRulesAndInstructions();
+});
 
 // ===============================
-// Typed Input
+// TYPED INPUT HANDLER
 // ===============================
 document.getElementById("typed-word").addEventListener("keydown", e => {
   if (e.key === "Enter") {
@@ -440,12 +383,42 @@ document.getElementById("typed-word").addEventListener("keydown", e => {
   }
 });
 
+//----------Part 3----------
+
 // ===============================
 // GLOBAL KEYDOWN SHORTCUTS
 // ===============================
 let spaceDown = false;
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+
+  // =====================================================
+  // R ALWAYS OVERRIDES EVERYTHING — FIRST PRIORITY
+  // =====================================================
+  if (key === "r") {
+    e.preventDefault();
+    readRulesAndInstructions();
+    return;
+  }
+
+  // =====================================================
+  // K ALSO OVERRIDES EVERYTHING — SECOND PRIORITY
+  // =====================================================
+  if (key === "k") {
+    e.preventDefault();
+    readKeyboardShortcuts();
+    return;
+  }
+
+  // =====================================================
+  // Allow only certain keys while typing
+  // =====================================================
+  if (isTypingTarget(e.target) && !["2", "3", "4"].includes(key)) {
+    return;
+  }
+
+  // Space push-to-talk
   if (e.code === "Space" && !spaceDown) {
     e.preventDefault();
     spaceDown = true;
@@ -453,68 +426,108 @@ document.addEventListener("keydown", e => {
     return;
   }
 
-  if (isTypingTarget(e.target) && !["2", "3", "4"].includes(e.key)) {
-    return;
-  }
-
-  if (e.key === "1") {
+  // 1 = Start Game
+  if (key === "1") {
+    e.preventDefault();
     document.getElementById("start-btn").click();
     return;
   }
 
-  if (e.key === "2") {
+  // 2 = Read Letters
+  if (key === "2") {
+    e.preventDefault();
     readGridAloud();
     return;
   }
 
-  if (e.key === "3") {
+  // 3 = End Game
+  if (key === "3") {
+    e.preventDefault();
     forceEndGame();
     return;
   }
 
-  // 4 = Focus word entry box
-if (e.key === "4") {
-  e.preventDefault();
-
-  // If a modal is open, close help modal
-  const help = document.getElementById("help-modal");
-  if (!help.hidden) help.hidden = true;
-
-  // Same for summary modal
-  const summary = document.getElementById("summary-modal");
-  if (!summary.hidden) summary.hidden = true;
-
-  // Now focus input
-  const typedInput = document.getElementById("typed-word");
-  if (typedInput) {
-    typedInput.focus();
-    typedInput.select();
+  // 4 = Focus typing box
+  if (key === "4") {
+    e.preventDefault();
+    const typedInput = document.getElementById("typed-word");
+    if (typedInput) {
+      typedInput.focus();
+      typedInput.select();
+    }
+    return;
   }
 
-  return;
-}
-
-  if (e.key.toLowerCase() === "h") {
+  // H = Help
+  if (key === "h") {
+    e.preventDefault();
     openHelpModal();
     return;
-  }// R = Read rules and instructions
-if (e.key.toLowerCase() === "r") {
-  e.preventDefault();
-  readRulesAndInstructions();
-  return;
-}
+  }
+
+
+  // ---------------------------------------
+  // 3 = End Game
+  // ---------------------------------------
+  if (key === "3") {
+    e.preventDefault();
+    forceEndGame();
+    return;
+  }
+
+  // ---------------------------------------
+  // 4 = Focus typing field
+  // ---------------------------------------
+  if (key === "4") {
+    e.preventDefault();
+    const typedInput = document.getElementById("typed-word");
+    if (typedInput) {
+      typedInput.focus();
+      typedInput.select();
+    }
+    return;
+  }
+
+  // ---------------------------------------
+  // H = Help
+  // ---------------------------------------
+  if (key === "h") {
+    e.preventDefault();
+    openHelpModal();
+    return;
+  }
 });
 
-document.addEventListener("keyup", e => {
+// ===============================
+// KEYUP HANDLER
+// ===============================
+document.addEventListener("keyup", (e) => {
   if (e.code === "Space" && spaceDown) {
     spaceDown = false;
     stopListening();
   }
 });
 
-//===============================
+// ===============================
+// SPEAK KEYBOARD SHORTCUTS ON DEMAND
+// ===============================
+function readKeyboardShortcuts() {
+  Speech.clearQueue();
+
+  speakWithPause("Keyboard shortcuts.");
+  speakWithPause("Press Tab key then press the letter R for rules and instructions.");
+  speakWithPause("Or press the letter K to hear these keyboard shortcuts again.");
+  speakWithPause("Press the number 1 to start a new game.");
+  speakWithPause("Press the number 2 to read the letters.");
+  speakWithPause("Press the number 3 to end the game now.");
+  speakWithPause("Press Spacebar and hold to talk.");
+  speakWithPause("Press Enter to submit a typed word.");
+  speakWithPause("Press Tab then press H to open the help menu.");
+}
+
+// ===============================
 // Read Grid Aloud
-//===============================
+// ===============================
 function readGridAloud() {
   const letters = gameState.puzzle.letters.join(", ");
   const center = gameState.puzzle.required.toUpperCase();
@@ -524,6 +537,9 @@ function readGridAloud() {
   Speech.speak(`Center letter is ${center}.`);
 }
 
+// ===============================
+// Read Rules and Instructions
+// ===============================
 function readRulesAndInstructions() {
   Speech.clearQueue();
 
@@ -552,13 +568,14 @@ function readRulesAndInstructions() {
   Speech.speak("Press three to end the game at any time.");
   Speech.speak("Press four to move the cursor to the typing box.");
 
-  // Ending the game
+  // Ending
   Speech.speak("The game ends when you find all valid words.");
   Speech.speak("Or when you choose End Game Now.");
 }
-//===============================
+
+// ===============================
 // Hint
-//===============================
+// ===============================
 function giveHint() {
   const remaining = gameState.puzzle.validWords.filter(
     w => !gameState.foundWords.has(w)
@@ -572,37 +589,46 @@ function giveHint() {
   setStatus(`A word starts with ${remaining[0][0]}.`, true);
 }
 
-//===============================
+// ===============================
 // Command Parsing
-//===============================
+// ===============================
 function handleCommandResult(result, rawText) {
   switch (result.type) {
     case "guess":
       handleGuess(result.payload);
       break;
+
     case "read_grid":
       readGridAloud();
       break;
+
     case "hint":
       giveHint();
       break;
+
     case "repeat":
       setStatus(
         document.getElementById("status").textContent || "No status yet.",
         true
       );
       break;
+
     case "read_found_words":
       readFoundWordsAloud();
       break;
+
     case "read_remaining_words":
       readRemainingWords();
       break;
+
     default:
       setStatus(`I heard ${rawText}, but didn't understand.`, true);
   }
 }
 
+// ===============================
+// Read Found Words Aloud
+// ===============================
 function readFoundWordsAloud() {
   const words = Array.from(gameState.foundWords).sort();
 
@@ -614,6 +640,9 @@ function readFoundWordsAloud() {
   setStatus(`You have found: ${words.join(", ")}.`, true);
 }
 
+// ===============================
+// Read Remaining Words Aloud
+// ===============================
 function readRemainingWords() {
   const remaining = gameState.puzzle.validWords.filter(
     w => !gameState.foundWords.has(w)
@@ -643,6 +672,8 @@ function readRemainingWords() {
   );
 }
 
+//--------Part 4----------
+
 // ===============================
 // END GAME NOW
 // ===============================
@@ -665,21 +696,17 @@ function checkForGameEnd() {
   const remaining = gameState.puzzle.validWords.filter(
     w => !gameState.foundWords.has(w)
   );
-
   if (remaining.length === 0) openSummaryModal();
 }
 
 function openSummaryModal() {
-  if (!gameState || !gameState.startTime) {
-    return;
-  }
+  if (!gameState || !gameState.startTime) return;
 
   const modal = document.getElementById("summary-modal");
   const content = document.getElementById("summary-content");
 
   const p1 = gameState.players[0];
   const p2 = gameState.players[1];
-
   const durationSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
 
   let html = `
@@ -696,38 +723,38 @@ function openSummaryModal() {
 
   content.innerHTML = html;
 
-// Add score to leaderboard
-leaderboard.push({
-  name: p1.name,
-  score: p1.score,
-  time: durationSeconds,
-  date: Date.now()
-});
-
-if (gameState.mode === "two") {
+  // Add scores to leaderboard
   leaderboard.push({
-    name: p2.name,
-    score: p2.score,
+    name: p1.name,
+    score: p1.score,
     time: durationSeconds,
     date: Date.now()
   });
-}
 
-saveLeaderboard();
-updateLeaderboardUI();
+  if (gameState.mode === "two") {
+    leaderboard.push({
+      name: p2.name,
+      score: p2.score,
+      time: durationSeconds,
+      date: Date.now()
+    });
+  }
 
-
-// ------------------------------------------------
+  saveLeaderboard();
+  updateLeaderboardUI();
 
   modal.hidden = false;
 
+  // Confetti celebration
   if (typeof launchConfetti === "function") {
     launchConfetti();
   }
 
+  // Spoken summary
   Speech.clearQueue();
   Speech.speak("Game complete.");
   Speech.speak(`${p1.name} scored ${p1.score} points.`);
+
   if (gameState.mode === "two") {
     Speech.speak(`${p2.name} scored ${p2.score} points.`);
   }
@@ -746,6 +773,9 @@ document.getElementById("summary-close-btn").addEventListener("click", () => {
   document.getElementById("summary-modal").hidden = true;
 });
 
+// ===============================
+// PROGRESS BAR
+// ===============================
 function updateProgressBar() {
   if (!gameState || !gameState.puzzle) return;
 
@@ -754,14 +784,13 @@ function updateProgressBar() {
 
   const percent = Math.floor((found / total) * 100);
 
-  // Update bar width
   const bar = document.getElementById("progress-bar");
   bar.style.width = percent + "%";
 
-  // Update label
   const label = document.getElementById("progress-label");
   label.textContent = `${percent}% Complete`;
 }
+
 // ===============================
 // CONFETTI EFFECT
 // ===============================
@@ -829,8 +858,8 @@ function openHelpModal() {
   Speech.speak("Press 3 to end the game now.");
   Speech.speak("Press space and hold to talk.");
   Speech.speak("Press enter to submit a typed word.");
-  Speech.speak("Press h to open this help screen.");
-  Speech.speak("Press The letter R for game rules and instructions.");
+  Speech.speak("Press H to open this help screen.");
+  Speech.speak("Press R twice for game rules and instructions.");
 }
 
 function closeHelpModal() {
@@ -842,3 +871,4 @@ document.getElementById("help-close-btn").addEventListener("click", closeHelpMod
 // ===============================
 // End of game.js
 // ===============================
+
