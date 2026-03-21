@@ -270,11 +270,12 @@ function handleGuess(word) {
 
   gameState.foundWords.add(word);
 
-  if (points >= 15) {
-    setStatus(`Amazing! ${word} earned ${points} points!`, true);
-  } else {
-    setStatus(`${word} is valid for ${points} points.`, true);
-  }
+if (points >= 15) {
+  setStatus(`Amazing! ${word} earned ${points} points!`, true);
+} else {
+  setStatus(`${word} is valid for ${points} points.`, true);
+}
+``
 
   if (gameState.mode === "two") {
     gameState.currentPlayerIndex =
@@ -402,11 +403,21 @@ document.addEventListener("keydown", (e) => {
  
   Speech.clearQueue();
 
-  if (key === "r") {
-    e.preventDefault();
-    readRulesAndInstructions();
+ // R = Read Rules (unless typing inside the word box)
+if (key === "r") {
+
+  const typedInput = document.getElementById("typed-word");
+
+  // If the cursor is inside the input box → allow typing "r"
+  if (document.activeElement === typedInput) {
     return;
   }
+
+  // Otherwise, treat R as a shortcut
+  e.preventDefault();
+  readRulesAndInstructions();
+  return;
+}
 
   // =====================================================
   // K ALSO OVERRIDES EVERYTHING — SECOND PRIORITY
