@@ -363,9 +363,6 @@ if (gameState.mode === "two") {
   updateFoundWords();
   updateRemainingCounter();
   updateProgressBar();
-
-
-
 // ===============================
 // START GAME
 // ===============================
