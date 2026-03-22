@@ -548,7 +548,7 @@ function readKeyboardShortcuts() {
   Speech.clearQueue();
 
   speakWithPause("Keyboard shortcuts.");
-  speakWithPause("Press Tab key then press the letter R for rules and instructions.");
+  speakWithPause("Press the letter R for rules and instructions.");
   speakWithPause("Or press the letter K to hear these keyboard shortcuts again.");
   speakWithPause("Press the number 1 to start a new game.");
   speakWithPause("Press the number 2 to read the letters.");
