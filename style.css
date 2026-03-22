@@ -263,14 +263,19 @@ input[type="text"]:focus {
 
 /* Bigger, glowing, more visible scoreboard */
 .score-large {
-  background: rgba(20, 20, 20, 0.55);
+  background: rgba(20,20,20,0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   padding: 20px 30px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 0 18px rgba(0,0,0,0.4);
-  min-width: 260px;   /* makes it wider */
+
+  min-width: 260px !important;   /* FORCES size on Chrome Mobile */
+  max-width: 320px;               /* Prevents it from getting too large */
+  width: fit-content;             /* Helps flexbox honor content width */
+
+  flex-shrink: 0;                 /* Prevents Chrome Mobile from squishing it */
 }
 
 .score-large .score-box {
