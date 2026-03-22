@@ -406,20 +406,14 @@ document.getElementById("start-btn").addEventListener("click", () => {
   updateRemainingCounter();
   updateProgressBar();
   // ----------------------------------------
-// Welcome line
+// OPTIONAL WELCOME LINE + ROAR
+// ----------------------------------------
 Speech.clearQueue();
 Speech.speak("Welcome to Game Tiger.");
 
-// Prepare roar for mobile
-const roar = document.getElementById("tiger-roar");
-if (roar) {
-  roar.currentTime = 0;
-  roar.play().catch(() => {}); // THIS counts as user gesture
-  roar.pause();                // We pause immediately
-}
-
-// After 2 seconds, play the roar for real
+// 2-second roar delay
 setTimeout(() => {
+  const roar = document.getElementById("tiger-roar");
   if (roar) {
     roar.currentTime = 0;
     roar.play().catch(() => {});
@@ -628,6 +622,9 @@ function readRulesAndInstructions() {
 // ===============================
 // Hint
 // ===============================
+// ===============================
+// Improved Hint System
+// ===============================
 function giveHint() {
   const remaining = gameState.puzzle.validWords.filter(
     w => !gameState.foundWords.has(w)
@@ -638,7 +635,61 @@ function giveHint() {
     return;
   }
 
-  setStatus(`A word starts with ${remaining[0][0]}.`, true);
+  // ----------------------------------------------
+  // 1) HINT TYPE: Count how many start with a letter
+  // ----------------------------------------------
+  const firstLetterCounts = {};
+  remaining.forEach(word => {
+    const first = word[0];
+    firstLetterCounts[first] = (firstLetterCounts[first] || 0) + 1;
+  });
+
+  // Find a good letter to hint
+  const bestLetter = Object.keys(firstLetterCounts)
+    .sort((a, b) => firstLetterCounts[b] - firstLetterCounts[a])[0];
+
+  const countForLetter = firstLetterCounts[bestLetter];
+
+  // ----------------------------------------------
+  // 2) HINT TYPE: A still‑missing long or interesting word length
+  // ----------------------------------------------
+  const lengthCounts = {};
+  remaining.forEach(word => {
+    const len = word.length;
+    lengthCounts[len] = (lengthCounts[len] || 0) + 1;
+  });
+
+  // Choose a hint-worthy length (prefers long words)
+  const bestLength = Object.keys(lengthCounts)
+    .map(n => Number(n))
+    .sort((a, b) => b - a)[0]; // longest remaining word length
+
+  const countForLength = lengthCounts[bestLength];
+
+  // ----------------------------------------------
+  // Choose which hint to give (varied + fun)
+  // ----------------------------------------------
+  let message = "";
+
+  // 50% chance: letter‑based hint
+  if (Math.random() < 0.5) {
+    if (countForLetter === 1) {
+      message = `There is 1 word that starts with ${bestLetter.toUpperCase()}.`;
+    } else {
+      message = `There are ${countForLetter} words that start with ${bestLetter.toUpperCase()}.`;
+    }
+  }
+
+  // 50% chance: length‑based hint
+  else {
+    if (countForLength === 1) {
+      message = `There is a ${bestLength}-letter word you haven't found yet.`;
+    } else {
+      message = `There are ${countForLength} words with ${bestLength} letters you haven't found.`;
+    }
+  }
+
+  setStatus(message, true);
 }
 
 // ===============================
