@@ -405,7 +405,20 @@ document.getElementById("start-btn").addEventListener("click", () => {
   updateFoundWords();
   updateRemainingCounter();
   updateProgressBar();
-  setStatus("Game started.", true);
+  // ----------------------------------------
+// OPTIONAL WELCOME LINE + ROAR
+// ----------------------------------------
+Speech.clearQueue();
+Speech.speak("Welcome to Game Tiger.");
+
+// 2-second roar delay
+setTimeout(() => {
+  const roar = document.getElementById("tiger-roar");
+  if (roar) {
+    roar.currentTime = 0;
+    roar.play().catch(() => {});
+  }
+}, 2000);
 
   // ----------------------------------------
   // SPEECH SEQUENCE AFTER STARTING A NEW GAME
