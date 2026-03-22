@@ -420,6 +420,8 @@ gameState.prowlSpoken = false;
 // ===============================
 // ❌ removed duplicate typedInput here
 
+});   // <-- THIS closes the start-btn click handler
+``
 
 // ===============================
 // BUTTON HANDLERS
@@ -491,87 +493,47 @@ document.addEventListener("keydown", (e) => {
     return;
   }
 
-  // 1 = Start Game
-  if (key === "1") {
-    e.preventDefault();
-    document.getElementById("start-btn").click();
-    return;
-  }
+// 1 = Start Game
+if (key === "1") {
+  e.preventDefault();
+  document.getElementById("start-btn").click();
+  return;
+}
 
-  // 2 = Read Letters
-  if (key === "2") {
-    e.preventDefault();
-    readGridAloud();
-    return;
-  }
+// 2 = Read Letters
+if (key === "2") {
+  e.preventDefault();
+  readGridAloud();
+  return;
+}
 
-  // 3 = End Game
-  if (key === "3") {
-    e.preventDefault();
-    forceEndGame();
-    return;
-  }
+// 3 = End Game
+if (key === "3") {
+  e.preventDefault();
+  forceEndGame();
+  return;
+}
 
-  // 4 = Focus typing box
-  if (key === "4") {
-    e.preventDefault();
-    const typedInput = document.getElementById("typed-word");
-    typedInput.focus();
-    typedInput.select();
-    return;
-  }
+// 4 = Focus typing box
+if (key === "4") {
+  e.preventDefault();
+  const typedInput = document.getElementById("typed-word");
+  typedInput.focus();
+  typedInput.select();
+  return;
+}
 
-  // H = Help
-  if (key === "h") {
-    e.preventDefault();
-    openHelpModal();
-    return;
-  }
-});
+// H = Help
+if (key === "h") {
+  e.preventDefault();
+  openHelpModal();
+  return;
+}
 
-  // H = Help
-  if (key === "h") {
-    e.preventDefault();
-    openHelpModal();
-    return;
-  }
+});   // <-- END OF KEYDOWN HANDLER (this is correct)
 
+/* NOTHING SHOULD BE HERE AFTER THE CLOSING }); */
 
-  // ---------------------------------------
-  // 3 = End Game
-  // ---------------------------------------
-  if (key === "3") {
-    e.preventDefault();
-    forceEndGame();
-    return;
-  }
-
-  // ---------------------------------------
-  // 4 = Focus typing field
-  // ---------------------------------------
-  if (key === "4") {
-    e.preventDefault();
-    const typedInput = document.getElementById("typed-word");
-    if (typedInput) {
-      typedInput.focus();
-      typedInput.select();
-    }
-    return;
-  }
-
-  // ---------------------------------------
-  // H = Help
-  // ---------------------------------------
-  if (key === "h") {
-    e.preventDefault();
-    openHelpModal();
-    return;
-  }
-});
-
-// ===============================
-// KEYUP HANDLER
-// ===============================
 document.addEventListener("keyup", (e) => {
   if (e.code === "Space" && spaceDown) {
     spaceDown = false;
@@ -872,7 +834,6 @@ function updateProgressBar() {
     Speech.speak("Ohh, tiger’s on the prowl!");
   }
 }
-``
 
 // ===============================
 // CONFETTI EFFECT
