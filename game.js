@@ -391,15 +391,6 @@ gameState = {
     startTime: Date.now()
 };
 
-// 🎤 Speak player name(s)
-Speech.clearQueue();
-
-if (mode === "single") {
-  Speech.speak(`Welcome ${p1Name}. Let the hunt begin.`);
-} else {
-  Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
-}
-
   console.log("DEBUG — GAMESTATE CREATED:", gameState);
 
   document.getElementById("p1-name-label").textContent = p1Name;
