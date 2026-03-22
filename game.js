@@ -406,14 +406,20 @@ document.getElementById("start-btn").addEventListener("click", () => {
   updateRemainingCounter();
   updateProgressBar();
   // ----------------------------------------
-// OPTIONAL WELCOME LINE + ROAR
-// ----------------------------------------
+// Welcome line
 Speech.clearQueue();
 Speech.speak("Welcome to Game Tiger.");
 
-// 2-second roar delay
+// Prepare roar for mobile
+const roar = document.getElementById("tiger-roar");
+if (roar) {
+  roar.currentTime = 0;
+  roar.play().catch(() => {}); // THIS counts as user gesture
+  roar.pause();                // We pause immediately
+}
+
+// After 2 seconds, play the roar for real
 setTimeout(() => {
-  const roar = document.getElementById("tiger-roar");
   if (roar) {
     roar.currentTime = 0;
     roar.play().catch(() => {});
