@@ -442,7 +442,6 @@ document.getElementById("instructions-btn").addEventListener("click", () => {
   readKeyboardShortcuts();
 });
 
-
 // ===============================
 // TYPED INPUT HANDLER
 // ===============================
