@@ -877,12 +877,24 @@ function updateProgressBar() {
 
   const percent = Math.floor((found / total) * 100);
 
+  // Update bar width
   const bar = document.getElementById("progress-bar");
   bar.style.width = percent + "%";
 
+  // Update label
   const label = document.getElementById("progress-label");
   label.textContent = `${percent}% Complete`;
+
+  // ================================
+  // 🔊 50% PROGRESS ANNOUNCEMENT
+  // ================================
+  if (!gameState.prowlSpoken && percent >= 50) {
+    gameState.prowlSpoken = true;    // prevent repeating
+    Speech.clearQueue();
+    Speech.speak("Ohh, tiger’s on the prowl!");
+  }
 }
+``
 
 // ===============================
 // CONFETTI EFFECT
