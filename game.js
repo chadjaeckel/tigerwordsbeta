@@ -414,7 +414,6 @@ if (mode === "single") {
 } else {
   Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
 }
-``
 
   console.log("DEBUG — GAMESTATE CREATED:", gameState);
 
