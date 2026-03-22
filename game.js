@@ -800,8 +800,17 @@ function openSummaryModal() {
   } else {
     Speech.speak(`Total time played: ${seconds} second${seconds === 1 ? "" : "s"}.`);
   }
-}
 
+  // WIN MESSAGE — PLAYER FOUND ALL WORDS
+const remaining = gameState.puzzle.validWords.filter(
+  w => !gameState.foundWords.has(w)
+);
+
+if (remaining.length === 0) {
+  Speech.speak("You found every single word! The tiger reigns supreme! Do a little dance!");
+
+}
+}
 document.getElementById("summary-close-btn").addEventListener("click", () => {
   document.getElementById("summary-modal").hidden = true;
 });
