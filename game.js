@@ -358,11 +358,17 @@ if (gameState.mode === "two") {
     gameState.currentPlayerIndex === 0 ? 1 : 0;
 }
 
-  // Update UI
+ // Update UI
   updateUI();
   updateFoundWords();
   updateRemainingCounter();
   updateProgressBar();
+  checkForGameEnd();
+} // <-- THIS WAS MISSING. MUST CLOSE handleGuess() BEFORE START GAME.
+/* END OF handleGuess */
+
+
+
 // ===============================
 // START GAME
 // ===============================
