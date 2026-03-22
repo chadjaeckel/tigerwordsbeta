@@ -738,6 +738,7 @@ function giveHint() {
 // ===============================
 function handleCommandResult(result, rawText) {
   switch (result.type) {
+
     case "guess":
       handleGuess(result.payload);
       break;
@@ -765,8 +766,13 @@ function handleCommandResult(result, rawText) {
       readRemainingWords();
       break;
 
+    case "say_letters_slowly":
+      sayLettersSlowly();
+      break;
+
     default:
       setStatus(`I heard ${rawText}, but didn't understand.`, true);
+      break;
   }
 }
 
