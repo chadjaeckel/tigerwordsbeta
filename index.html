@@ -1,170 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#111111" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111111" />
   <title>Word Tiger</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <main>
-    <h1>Word Tiger</h1>
+<main>
 
-    <section aria-labelledby="setup-heading">
-      <h2 id="setup-heading">Game Setup</h2>
+  <h1>Word Tiger</h1>
 
-      <fieldset>
-        <legend>Select game mode</legend>
-        <label><input type="radio" name="mode" value="single" checked /> Single Player</label>
-        <label><input type="radio" name="mode" value="two" /> Two Player</label>
-      </fieldset>
+  <!-- =============================== -->
+  <!-- GAME SETUP                      -->
+  <!-- =============================== -->
+  <section aria-labelledby="setup-heading">
+    <h2 id="setup-heading">Game Setup</h2>
 
-      <label for="player1-name">Player 1 name</label>
-      <input id="player1-name" type="text" placeholder="Player 1 name" />
+    <fieldset>
+      <legend>Select game mode</legend>
+      <label><input type="radio" name="mode" value="single" checked /> Single Player</label>
+      <label><input type="radio" name="mode" value="two" /> Two Player</label>
+    </fieldset>
 
-      <label for="player2-name">Player 2 name</label>
-      <input id="player2-name" type="text" placeholder="Player 2 name" />
+    <label for="player1-name">Player 1 name</label>
+    <input id="player1-name" type="text" placeholder="Player 1 name" />
 
+    <label for="player2-name">Player 2 name</label>
+    <input id="player2-name" type="text" placeholder="Player 2 name" />
+
+    <div class="start-end-row">
       <button id="start-btn">Start Game</button>
-      <button id="endgame-btn">End Game Now</button>
-    </section>
- <li><strong>3</strong> = End Game Now</li>
-    <section id="game" hidden aria-labelledby="game-heading">
-      <h2 id="game-heading">Game</h2>
-
-
-      <!-- RULES BUTTON (placed above grid) -->
-<button id="rules-btn" class="big-rules-button">
-  INSTRUCTIONS & RULES
-</button>
-
-<!-- GAME GRID -->
-<div id="grid" class="grid"></div>
-
-
-      <div class="grid" id="grid" aria-label="Letter grid"></div>
-
-
-      <p>Hold the <strong>Spacebar</strong> to speak.</p>
-
-      <div id="scoreboard">
-  <div class="score-box" id="p1-score-box">
-    <h3 id="p1-name-label">Player 1</h3>
-    <div class="score-value" id="p1-score">0</div>
-  </div>
-
-      <form id="word-form">
-        <label for="typed-word">Type a word</label>
-       <input id="typed-word" type="text" placeholder="Type a word and press Enter">
-      </form>
-    </section>
-    
-  <div id="progress-container">
-  <div id="progress-bar"></div>
-  <div id="progress-label">0% Complete</div>
-</div>
-
-  <section id="leaderboard" aria-labelledby="leaderboard-heading">
-  <h2 id="leaderboard-heading">Leaderboard</h2>
-  <ul id="leaderboard-list"></ul>
-</section>
-
-  <div class="score-box" id="p2-score-box" hidden>
-    <h3 id="p2-name-label">Player 2</h3>
-    <div class="score-value" id="p2-score">0</div>
-  </div>
-</div>
-
-      <div id="status" role="status" aria-live="polite"></div>
-
-      <section id="found-words" aria-labelledby="found-words-heading">
-        <h2 id="found-words-heading">Found Words</h2>
-        <ul id="found-list"></ul>
-      </section>
-
-      <div id="remaining-counter" style="margin-top:10px; font-size:1.1rem; color:#ffeb3b;">
-  Remaining words: …
-</div>
-
-      <section class="controls" aria-label="Game controls">
-        <button id="listen-btn">Start Listening</button>
-        <button id="stop-btn">Stop Listening</button>
-        <button id="hint-btn">Hint</button>
-        <button id="read-btn">Read Letters</button>
-        
-      </section>
-
-  
-
-<div id="shortcuts" aria-label="Keyboard shortcuts">
-  <h2>Keyboard Shortcuts</h2>
-  <ul>
-    <li><strong>1</strong> = Start Game</li>
-    <li><strong>2</strong> = Read Letters</li>
-   
-    <li><strong>Space</strong> = Hold to Talk</li>
-    <li><strong>Enter</strong> = Submit Typed Word</li>
-  </ul>
-</div>
-
-
-<div id="voice-commands" aria-label="Voice commands">
-  <h2>Voice Commands</h2>
-  <ul>
-    <li><strong>Guess [word]</strong> = Submit a word</li>
-    <li><strong>Hint</strong> = Get a hint</li>
-    <li><strong>Read grid</strong> = Hear the grid letters</li>
-    <li><strong>Repeat</strong> = Repeat the last status message</li>
-    <li><strong>Read found words</strong> = Hear the words already found</li>
-    <li><strong>Read remaining words</strong> = Hear a summary of words left</li>
-  </ul>
-  
-</div>
-
-
-    <section id="stats" aria-labelledby="stats-heading">
-      <h2 id="stats-heading">Statistics</h2>
-    </section>
-
-
-    <!-- End‑of‑Game Summary Modal -->
-<div id="summary-modal" hidden class="modal-overlay" role="dialog" aria-labelledby="summary-title">
-  <div class="modal">
-    <h2 id="summary-title">Game Summary</h2>
-
-    <div id="summary-content">
-      <!-- Filled by JavaScript -->
+      <button id="endgame-btn" class="endgame-btn">End Game Now</button>
     </div>
 
-    <button id="summary-close-btn">Close</button>
+    <p><strong>3</strong> = End Game Now</p>
+  </section>
+
+
+
+  <!-- =============================== -->
+  <!-- TWO-COLUMN GAME AREA            -->
+  <!-- =============================== -->
+  <section id="game" hidden aria-labelledby="game-heading">
+
+    <div class="game-container">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-column">
+
+        <h2 id="game-heading">Game</h2>
+
+        <!-- Rules Button -->
+        <button id="rules-btn" class="big-rules-button">INSTRUCTIONS & RULES</button>
+
+        <!-- Letter Grid -->
+        <div id="grid" class="grid"></div>
+
+        <!-- Type a Word -->
+        <input id="typed-word" type="text" placeholder="Type a word and press Enter" />
+
+        <!-- Progress Bar -->
+        <div id="progress-container">
+          <div id="progress-bar"></div>
+          <div id="progress-label">0% Complete</div>
+        </div>
+
+        <!-- Remaining counter -->
+        <div id="remaining-counter"></div>
+
+        <!-- Status -->
+        <div id="status" role="status" aria-live="polite"></div>
+
+        <!-- Scoreboard -->
+        <div id="scoreboard">
+          <div class="score-box" id="p1-score-box">
+            <h3 id="p1-name-label">Player 1</h3>
+            <div class="score-value" id="p1-score">0</div>
+          </div>
+
+          <div class="score-box" id="p2-score-box" hidden>
+            <h3 id="p2-name-label">Player 2</h3>
+            <div class="score-value" id="p2-score">0</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <p>Hold the <strong>Spacebar</strong> to speak.</p>
+
+        <section class="controls" aria-label="Game controls">
+          <button id="listen-btn">Start Listening</button>
+          <button id="stop-btn">Stop Listening</button>
+          <button id="hint-btn">Hint</button>
+          <button id="read-btn">Read Letters</button>
+        </section>
+
+      </div> <!-- end left column -->
+
+
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-column">
+
+        <!-- Leaderboard -->
+        <section id="leaderboard" class="sidebar-card">
+          <h2>Leaderboard</h2>
+          <ul id="leaderboard-list"></ul>
+        </section>
+
+        <!-- Found Words -->
+        <section id="found-words" class="sidebar-card">
+          <h2>Found Words</h2>
+          <ul id="found-list"></ul>
+        </section>
+
+        <!-- Stats -->
+        <section id="stats" class="sidebar-card">
+          <h2>Statistics</h2>
+        </section>
+
+      </div> <!-- end right column -->
+
+    </div> <!-- end game-container -->
+
+  </section>
+
+
+
+  <!-- =============================== -->
+  <!-- SUMMARY MODAL                   -->
+  <!-- =============================== -->
+  <div id="summary-modal" hidden class="modal-overlay" role="dialog" aria-labelledby="summary-title">
+    <div class="modal">
+      <h2 id="summary-title">Game Summary</h2>
+      <div id="summary-content"></div>
+      <button id="summary-close-btn">Close</button>
+    </div>
   </div>
-</div>
 
-<!-- Keyboard Help Modal -->
-<div id="help-modal" hidden class="modal-overlay" role="dialog" aria-labelledby="help-title">
-  <div class="modal">
-    <h2 id="help-title">Keyboard Shortcuts</h2>
-    <ul>
-      <li><strong>1</strong> = Start Game</li>
-      <li><strong>2</strong> = Read Letters</li>
-      <li><strong>3</strong> = End Game Now</li>
-      <li><strong>Space</strong> = Hold to Talk</li>
-      <li><strong>Enter</strong> = Submit Typed Word</li>
-      <li><strong>H</strong> = Help (show this menu)</li>
-    </ul>
-    <button id="help-close-btn">Close</button>
+
+  <!-- =============================== -->
+  <!-- HELP MODAL                      -->
+  <!-- =============================== -->
+  <div id="help-modal" hidden class="modal-overlay" role="dialog" aria-labelledby="help-title">
+    <div class="modal">
+      <h2 id="help-title">Keyboard Shortcuts</h2>
+      <ul>
+        <li><strong>1</strong> = Start Game</li>
+        <li><strong>2</strong> = Read Letters</li>
+        <li><strong>3</strong> = End Game Now</li>
+        <li><strong>Space</strong> = Hold to Talk</li>
+        <li><strong>Enter</strong> = Submit Typed Word</li>
+        <li><strong>H</strong> = Help Menu</li>
+        <li><strong>R</strong> = Rules Menu</li>
+      </ul>
+      <button id="help-close-btn">Close</button>
+    </div>
   </div>
-</div>
 
-  </main>
 
-  <script src="dictionary.js" defer></script>
-  <script src="puzzle.js" defer></script>
-  <script src="speech.js" defer></script>
-  <script src="commands.js" defer></script>
-  <script src="game.js" defer></script>
+</main>
+
+<!-- Scripts -->
+<script src="dictionary.js" defer></script>
+<script src="puzzle.js" defer></script>
+<script src="speech.js" defer></script>
+<script src="commands.js" defer></script>
+<script src="game.js" defer></script>
 
 <canvas id="confetti-canvas"></canvas>
 
