@@ -468,7 +468,6 @@ gameState.prowlSpoken = false;
 // ❌ removed duplicate typedInput here
 
 });   // <-- THIS closes the start-btn click handler
-``
 
 // ===============================
 // BUTTON HANDLERS
