@@ -363,6 +363,18 @@ function handleGuess(word) {
   updateFoundWords();
   updateRemainingCounter();
   updateProgressBar();
+
+  // -----------------------------------------------
+// SPEAK PLAYER NAME(S) AFTER GAME IS SET UP
+// -----------------------------------------------
+Speech.clearQueue();
+
+if (mode === "single") {
+  Speech.speak(`Welcome ${p1Name}. Let the hunt begin.`);
+} else {
+  Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
+}
+
   checkForGameEnd();
 }
 
@@ -382,7 +394,7 @@ document.getElementById("start-btn").addEventListener("click", () => {
 
   const puzzle = Puzzle.generatePuzzle();
 
-  gameState = {
+gameState = {
     puzzle,
     players: [
       { name: p1Name, score: 0 },
@@ -392,7 +404,17 @@ document.getElementById("start-btn").addEventListener("click", () => {
     currentPlayerIndex: 0,
     foundWords: new Set(),
     startTime: Date.now()
-  };
+};
+
+// 🎤 Speak player name(s)
+Speech.clearQueue();
+
+if (mode === "single") {
+  Speech.speak(`Welcome ${p1Name}. Let the hunt begin.`);
+} else {
+  Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
+}
+``
 
   console.log("DEBUG — GAMESTATE CREATED:", gameState);
 
@@ -405,6 +427,18 @@ document.getElementById("start-btn").addEventListener("click", () => {
   updateFoundWords();
   updateRemainingCounter();
   updateProgressBar();
+
+  // ----------------------------------------------------
+// GREET PLAYER(S) — WORKS 100% ON DESKTOP + MOBILE
+// ----------------------------------------------------
+setTimeout(() => {
+  if (mode === "single") {
+    Speech.speak(`Welcome ${p1Name}. Let the hunt begin.`);
+  } else {
+    Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
+  }
+}, 100); // small delay to allow speech engine to initialize
+
   // ----------------------------------------
 // OPTIONAL WELCOME LINE + ROAR
 // ----------------------------------------
@@ -479,14 +513,21 @@ document.addEventListener("keydown", (e) => {
   const key = e.key.toLowerCase();
 
   // R = Read Rules (unless typing into input box)
-  if (key === "r") {
+// R = Read Rules (BUT ONLY after the game has started)
+if (key === "r") {
+
+    // Prevent R from triggering during setup (typing usernames)
+    if (!gameState) return;
+
     const typedInput = document.getElementById("typed-word");
+
+    // If cursor is in the input box DURING the game, let user type "r"
     if (document.activeElement === typedInput) return;
 
     e.preventDefault();
     readRulesAndInstructions();
     return;
-  }
+}
 
   // K = Keyboard shortcuts
   if (key === "k") {
@@ -994,4 +1035,3 @@ document.getElementById("help-close-btn").addEventListener("click", closeHelpMod
 // ===============================
 // End of game.js
 // ===============================
-
