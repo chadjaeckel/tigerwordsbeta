@@ -353,10 +353,10 @@ function handleGuess(word) {
   }
 
   // Switch players in two-player mode
-  if (gameState.mode === "two") {
-    gameState.currentPlayerIndex =
-      gameState.currentPlayerIndex === 0 ? 1 : 0;
-  }
+if (gameState.mode === "two") {
+  gameState.currentPlayerIndex =
+    gameState.currentPlayerIndex === 0 ? 1 : 0;
+}
 
   // Update UI
   updateUI();
