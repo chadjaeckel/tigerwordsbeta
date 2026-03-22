@@ -364,19 +364,7 @@ if (gameState.mode === "two") {
   updateRemainingCounter();
   updateProgressBar();
 
-  // -----------------------------------------------
-// SPEAK PLAYER NAME(S) AFTER GAME IS SET UP
-// -----------------------------------------------
-Speech.clearQueue();
 
-if (mode === "single") {
-  Speech.speak(`Welcome ${p1Name}. Let the hunt begin.`);
-} else {
-  Speech.speak(`Welcome ${p1Name} and ${p2Name}. Player one, you go first.`);
-}
-
-  checkForGameEnd();
-}
 
 // ===============================
 // START GAME
