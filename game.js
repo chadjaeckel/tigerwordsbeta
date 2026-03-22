@@ -410,32 +410,16 @@ document.getElementById("start-btn").addEventListener("click", () => {
   // ----------------------------------------
   // SPEECH SEQUENCE AFTER STARTING A NEW GAME
   // ----------------------------------------
-  Speech.clearQueue();
-  Speech.speak("Welcome to Game Tiger.");
+  // No automatic instructions at game start
+// Prepare state for progress milestones
+gameState.prowlSpoken = false;
 
-  // 1-second pause
-  const welcomePause = new SpeechSynthesisUtterance(" ");
-  welcomePause.volume = 0;
-  welcomePause.rate = 0.5;
+// Focus typing field
+// ===============================
+// Start Game input focus (KEEP ONLY inside Start Game handler)
+// ===============================
+// ❌ removed duplicate typedInput here
 
-  welcomePause.onend = () => {
-    speakWithPause("Keyboard shortcuts.");
-    speakWithPause("Press the Tab Key and then the letter R two times for game rules and instructions.");
-    speakWithPause("Or press the letter K to hear the keyboard shortcuts.");
-    speakWithPause("Press the number 1 to start a new game.");
-    speakWithPause("Press the number 2 to read the letters.");
-    speakWithPause("Press the number 3 to end the game now.");
-    speakWithPause("Press Spacebar and hold to talk.");
-    speakWithPause("Press Enter to submit a typed word.");
-  
-  };
-
-  speechSynthesis.speak(welcomePause);
-
-  const typedInput = document.getElementById("typed-word");
-  typedInput.focus();
-  typedInput.select();
-});
 
 // ===============================
 // BUTTON HANDLERS
@@ -446,9 +430,16 @@ document.getElementById("listen-btn").addEventListener("click", startListening);
 document.getElementById("stop-btn").addEventListener("click", stopListening);
 document.getElementById("endgame-btn").addEventListener("click", forceEndGame);
 
+// RULES BUTTON
 document.getElementById("rules-btn").addEventListener("click", () => {
-  Speech.clearQueue();       // <-- ADD THIS LINE
+  Speech.clearQueue();
   readRulesAndInstructions();
+});
+
+// READ INSTRUCTIONS BUTTON
+document.getElementById("instructions-btn").addEventListener("click", () => {
+  Speech.clearQueue();
+  readKeyboardShortcuts();
 });
 
 
@@ -464,7 +455,6 @@ document.getElementById("typed-word").addEventListener("keydown", e => {
   }
 });
 
-//----------Part 3----------
 
 // ===============================
 // GLOBAL KEYDOWN SHORTCUTS
@@ -474,44 +464,27 @@ let spaceDown = false;
 document.addEventListener("keydown", (e) => {
   const key = e.key.toLowerCase();
 
-  // =====================================================
-  // R ALWAYS OVERRIDES EVERYTHING — FIRST PRIORITY
-  // =====================================================
- 
+  // R = Read Rules (unless typing into input box)
+  if (key === "r") {
+    const typedInput = document.getElementById("typed-word");
+    if (document.activeElement === typedInput) return;
 
- // R = Read Rules (unless typing inside the word box)
-if (key === "r") {
-
-  const typedInput = document.getElementById("typed-word");
-
-  // If the cursor is inside the input box → allow typing "r"
-  if (document.activeElement === typedInput) {
+    e.preventDefault();
+    readRulesAndInstructions();
     return;
   }
 
-  // Otherwise, treat R as a shortcut
-  e.preventDefault();
-  readRulesAndInstructions();
-  return;
-}
-
-  // =====================================================
-  // K ALSO OVERRIDES EVERYTHING — SECOND PRIORITY
-  // =====================================================
+  // K = Keyboard shortcuts
   if (key === "k") {
     e.preventDefault();
     readKeyboardShortcuts();
     return;
   }
 
-  // =====================================================
   // Allow only certain keys while typing
-  // =====================================================
-  if (isTypingTarget(e.target) && !["2", "3", "4"].includes(key)) {
-    return;
-  }
+  if (isTypingTarget(e.target) && !["2", "3", "4"].includes(key)) return;
 
-  // Space push-to-talk
+  // Push to talk
   if (e.code === "Space" && !spaceDown) {
     e.preventDefault();
     spaceDown = true;
@@ -544,12 +517,18 @@ if (key === "r") {
   if (key === "4") {
     e.preventDefault();
     const typedInput = document.getElementById("typed-word");
-    if (typedInput) {
-      typedInput.focus();
-      typedInput.select();
-    }
+    typedInput.focus();
+    typedInput.select();
     return;
   }
+
+  // H = Help
+  if (key === "h") {
+    e.preventDefault();
+    openHelpModal();
+    return;
+  }
+});
 
   // H = Help
   if (key === "h") {
